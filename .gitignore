@@ -1,4 +1,6 @@
 Strava/*
 NikeApi/log/*
 NikeApi/work/*
+!NikeApi/log/.gitkeep
+!NikeApi/work/token
 NikeApi/sandbox/*
