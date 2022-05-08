@@ -9,14 +9,23 @@ Copyright (c) 2022 Hayato Funahashi All Rights Reserved.
 import json
 import datetime
 import pandas as pd
+import os
 
 class NikePostProcessor():
-    __summary_path = "work/summary.pkl"
-    __timesrs_path = "work/time_series.pkl"
+    __work_dir = "work/pkl/"
+    __summary_path = __work_dir + "summary.pkl"
 
     def __init__(self, paths) -> None:
         self.paths = paths
+        os.makedirs(self.__work_dir)
         pass
+
+    def __get_timesrs_path(self, metric = None):
+        if metric is None:
+            path = self.__work_dir  + "time_series.pkl"
+        else:
+            path = self.__work_dir + metric + "_time_series.pkl"
+        return path 
 
     def __mk_summary_single_df(self, jd):
         """引数で渡したjsonファイルをsummaryのDataFrameに変換する"""
@@ -37,6 +46,7 @@ class NikePostProcessor():
 
     def __mk_single_ts_df(self, jd, metric):
         """引数で渡したjsonファイルからmetricで指定したパラメタの時系列DataFrameに変換"""        
+        df = None
         for d in jd.get("metrics"):
             if d.get("type") == metric:
                 df = pd.json_normalize(d.get("values"))
@@ -99,8 +109,8 @@ class NikePostProcessor():
                 ret_dfs = new_df
             else:
                 ret_dfs = pd.concat([ret_dfs, new_df])
-        ret_dfs.to_pickle(self.__timesrs_path)
+        ret_dfs.to_pickle(self.__get_timesrs_path(type))
         return ret_dfs
     
     def read_timeseries_dfs(self):
-        return pd.read_pickle(self.__timesrs_path)
+        return pd.read_pickle(self.__get_timesrs_path(type))

@@ -21,7 +21,7 @@ def use_summary():
 
 def use_timeseries():
     nike = na.NikeAnlyzer(b_need_fetch=False) #初回はTrueにする
-    dfs = nike.time_series("pace", b_first=True) #ここでは例のため"ペース"データを得る
+    dfs = nike.time_series("all", b_first=True) #ここでは例のため全てのデータを得る
     df = dfs.iloc[0]
     print(df["data"].info())
 

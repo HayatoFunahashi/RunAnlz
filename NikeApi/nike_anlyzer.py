@@ -86,6 +86,12 @@ class NikeAnlyzer:
             else:
                 dfs = pp.read_timeseries_dfs()
             return dfs
+        elif metric_type == "all":
+            pp = npp.NikePostProcessor(self.__paths)
+            # 全データをローカルに保存する
+            for metric in self.__valid_metrics:
+                print(metric + " do ....")
+                dfs = pp.create_save_timeseries_dfs(metric)
         else:
             print("invalid metric type given.")
             return None
