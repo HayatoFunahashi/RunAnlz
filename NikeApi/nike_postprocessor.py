@@ -17,7 +17,7 @@ class NikePostProcessor():
 
     def __init__(self, paths) -> None:
         self.paths = paths
-        os.makedirs(self.__work_dir)
+        os.makedirs(self.__work_dir, exist_ok=True)
         pass
 
     def __get_timesrs_path(self, metric = None):
@@ -112,5 +112,5 @@ class NikePostProcessor():
         ret_dfs.to_pickle(self.__get_timesrs_path(type))
         return ret_dfs
     
-    def read_timeseries_dfs(self):
+    def read_timeseries_dfs(self, type):
         return pd.read_pickle(self.__get_timesrs_path(type))

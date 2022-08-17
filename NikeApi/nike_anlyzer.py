@@ -84,7 +84,7 @@ class NikeAnlyzer:
             if b_first:
                 dfs = pp.create_save_timeseries_dfs(metric_type)
             else:
-                dfs = pp.read_timeseries_dfs()
+                dfs = pp.read_timeseries_dfs(metric_type)
             return dfs
         elif metric_type == "all":
             pp = npp.NikePostProcessor(self.__paths)
