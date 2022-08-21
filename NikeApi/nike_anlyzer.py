@@ -92,6 +92,7 @@ class NikeAnlyzer:
             for metric in self.__valid_metrics:
                 print(metric + " do ....")
                 dfs = pp.create_save_timeseries_dfs(metric)
+            return dfs
         else:
             print("invalid metric type given.")
             return None

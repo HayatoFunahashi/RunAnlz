@@ -31,17 +31,19 @@ class NikePostProcessor():
         """引数で渡したjsonファイルをsummaryのDataFrameに変換する"""
         s_time = jd.get("start_epoch_ms")
         s_time = datetime.datetime.fromtimestamp(s_time/1000) #msデータなので1000で除してUTC時間に変換
+        s_time = s_time.replace(microsecond=0)                #ms以下は切り捨て
         d_time = jd.get("active_duration_ms")
         d_time = d_time/1000/60 #ms -> min変換
         
         ret = {}
         ret["start_utc_ms"] = pd.Series(s_time)
-        ret["active_duration_min"] = pd.Series(d_time)
+        ret["active_min"] = pd.Series(d_time)
         for d in jd.get("summaries"):
             key = d.get("metric")
             val = d.get("value")
             ret[key] = pd.Series(val)
         
+        ret["outdoor"] = (jd.get("tags").get("location") == "outdoors")
         return pd.DataFrame(ret)
 
     def __mk_single_ts_df(self, jd, metric):
@@ -77,6 +79,7 @@ class NikePostProcessor():
         """
         new = None; old = None
         for path in self.paths:
+            print(path)
             jd = json.load(open(path, 'r'))
             old = self.__mk_summary_single_df(jd)
             if new is None:
@@ -84,6 +87,7 @@ class NikePostProcessor():
             else:
                 new = pd.concat([new, old])
         ret = new.sort_values("start_utc_ms", ascending=False, ignore_index=True)
+        ret = ret.fillna(0)
         ret.to_pickle(self.__summary_path)
         return ret
     
@@ -101,6 +105,7 @@ class NikePostProcessor():
         for path in self.paths:
             jd = json.load(open(path, 'r'))
             s_time = datetime.datetime.fromtimestamp(jd.get("start_epoch_ms")/1000) #unix->utc変換
+            s_time = s_time.replace(microsecond=0)                                  #ms以下は切り捨て
 
             df = self.__mk_single_ts_df(jd, type)
             new_df = pd.DataFrame(data=[[s_time, df]], columns=["start_utc", "data"])
@@ -109,6 +114,7 @@ class NikePostProcessor():
                 ret_dfs = new_df
             else:
                 ret_dfs = pd.concat([ret_dfs, new_df])
+        ret_dfs = ret_dfs.sort_values("start_utc", ascending=False, ignore_index=True)
         ret_dfs.to_pickle(self.__get_timesrs_path(type))
         return ret_dfs
     
